@@ -1,0 +1,8 @@
+Please follow the steps to set-up projects.
+
+1) Unzip the drupal_code.zip and drupal_DB.zip.
+2) After unzip the drupal_code.zip file put folder to under the htdocs(for xxamp) and www(for wamp).
+3) Create a database and import the drupal_DB unziped file.
+4) Now set-up the setting.php (sites/default/setting.php)
+5) Now you can access your site localhost/projectfolder_name
+6) You can setup the virtual host for you site.
