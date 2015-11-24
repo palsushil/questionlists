@@ -1,4 +1,0 @@
-name = Question
-description = "It is general modules where we perform a general implementations"
-package = Question
-core = 7.x
