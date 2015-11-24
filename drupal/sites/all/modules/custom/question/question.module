@@ -1,0 +1,79 @@
+<?php
+
+
+/**
+ * @file
+ * performs the following functionality:
+ * For some reason, our client wants to ensure that all question nodes have body text that ends with a question mark, "?". This needs to be checked for. In 
+ other words, a user cannot create a question node without a "?" in the end.
+ */
+ 
+ 
+
+/**
+ * Perform the form alter for question content type
+*/
+
+
+function question_form_question_node_form_alter(&$form, &$form_state, $form_id) {
+  $form['#validate']['1'] = "validate_question_title";
+}
+
+function validate_question_title (&$form, &$form_state) {
+	$title = $form_state['values']['title'];
+	$title_trim = substr($title, -1, 1);
+	if($title_trim != "?") {
+		form_set_error("error", t('Please add "?" at end of the title.'));
+	}
+}
+
+
+/**
+ * Implementation of hook_menu().
+ */
+
+function question_menu() {
+	
+	$items['question/list'] = array(
+        'title' => t('Question Lists'),
+        'description' => 'Question Lists',
+        'page callback' => 'question_lists',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+    );
+	return $items;
+}
+
+/**
+ * Implementation of question_lists().
+ */
+function question_lists () {
+  $output = '';
+  $query = "SELECT node_comment_statistics.comment_count AS node_comment_statistics_comment_count, node_counter.totalcount AS node_counter_totalcount, node.title AS node_title, node.nid AS nid, votingapi_cache_node_sum.value AS votingapi_cache_node_sum_value, node.created AS node_created FROM {node} node LEFT JOIN {votingapi_cache} votingapi_cache_node_sum ON node.nid = votingapi_cache_node_sum.entity_id AND (votingapi_cache_node_sum.entity_type = 'node' AND votingapi_cache_node_sum.function = 'count') INNER JOIN {node_comment_statistics} node_comment_statistics ON node.nid = node_comment_statistics.nid
+LEFT JOIN {node_counter} node_counter ON node.nid = node_counter.nid WHERE (( (node.status = '1') AND (node.type IN  ('question')) )) ORDER BY node_created DESC";
+  
+  $result = db_query($query)->fetchAll();
+
+  if(!empty($result)) {
+    $output = theme('question_lists', array('result' => $result));
+  }	
+
+  return $output;
+}
+
+
+/**
+ * Implementation of hook_theme().
+ */
+
+function question_theme() {
+    $theme_hooks = array(
+        'question_lists' => array(
+            'path' => drupal_get_path('module', 'question') . '/templates',
+            'template' => 'question-list',
+            'variables' => array('title' => NULL),
+        ),
+    );
+    return $theme_hooks;
+}
+
